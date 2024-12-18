@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies: IMDb vs Rotten Tomatoes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Movies: IMDb vs Rotten Tomatoes</h1>
+</header>
+
+<table id="movie-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Year</th>
+            <th>Director</th>
+            <th>Writers</th>
+            <th>Actors</th>
+            <th>Genre</th>
+            <th>IMDb Rating</th>
+            <th>Rotten Tomatoes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Data will be dynamically loaded here -->
+    </tbody>
+</table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<script>
+    function loadCSVData() {
+        Papa.parse('movies_combined.csv', {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            complete: function(results) {
+                const tableBody = document.getElementById("movie-table").getElementsByTagName("tbody")[0];
+                results.data.forEach(movie => {
+                    const row = tableBody.insertRow();
+                    ["Title", "Year", "Director", "Writers", "Actors", "Genre", "IMDb Rating", "Rotten Tomatoes"].forEach(key => {
+                        const cell = row.insertCell();
+                        cell.textContent = movie[key] || "N/A";
+                    });
+                });
+            }
+        });
+    }
+
+    window.onload = loadCSVData;
+</script>
+
+</body>
+</html>
