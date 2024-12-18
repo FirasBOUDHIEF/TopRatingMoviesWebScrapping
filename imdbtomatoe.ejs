@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>spIMDb & Rotten Tomatoes  </title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1c1c1c;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://bulldogbugle.com/wp-content/uploads/2024/06/Pictures-1200x675.png');
+        }
+
+        header {
+            background-color: #111;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .navbar {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .navbar a {
+            color: #f6ff48;
+            font-size: 1.2rem;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 15px;
+            border-radius: 5px;
+            background-color: #333;
+        }
+
+        .navbar a:hover {
+            background-color: #f6ff48;
+            color: #333;
+        }
+
+        .search-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .search-bar {
+            width: 50%;
+            padding: 10px;
+            font-size: 1.1rem;
+            border: 2px solid #555;
+            border-radius: 5px;
+            background-color: #222;
+            color: white;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #f6ff48;
+        }
+
+        table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #555;
+        }
+
+        th {
+            background-color: #84875b;
+            color: rgb(10, 1, 1);
+            cursor: pointer;
+        }
+
+        th:hover {
+            background-color: #f6ff48;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #444;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+  <span style="color: #fff;">IMBD</span> & <span style="color: white;">Rotten Tomatoes Movies</span> 
+</header>
+
+<div class="navbar">
+    <a style="background-color: #f6ff48; color: #000;" href="/">IMBD</a>
+    <a style="background-color: red; color: white;" href="/tomatoes">Rotten Tomatoes</a>
+</div>
+
+<div class="search-container">
+    <input type="text" id="search-bar" class="search-bar" placeholder="Search by movie title..." onkeyup="searchMovies()">
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th onclick="sortTable(0)">Title</th>
+            <th onclick="sortTable(1)">Year</th>
+            <th onclick="sortTable(2)">Director</th>
+            <th onclick="sortTable(3)">Writers</th>
+            <th onclick="sortTable(4)">Actors</th>
+            <th onclick="sortTable(5)">Genre</th>
+            <th onclick="sortTable(6)">IMDb Rating</th>
+            <th onclick="sortTable(7)">Rotten Tomatoes</th>
+        </tr>
+    </thead>
+    <tbody id="movie-table-body">
+        <% imdbtomatoes.forEach(function(movie) { %>
+            <tr>
+                <td><%= movie.Title %></td>
+                <td><%= movie.Year %></td>
+                <td><%= movie.Director %></td>
+                <td><%= movie.Writers %></td>
+                <td><%= movie.Actors %></td>
+                <td><%= movie.Genre %></td>
+                <td><%= movie.IMDbRating %></td>
+                <td><%= movie.RottenTomatoes %></td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<script>
+    function searchMovies() {
+        const searchTerm = document.getElementById("search-bar").value.toLowerCase();
+        const rows = document.querySelectorAll("#movie-table-body tr");
+
+        rows.forEach(row => {
+            const title = row.cells[0].textContent.toLowerCase();
+            if (title.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function sortTable(colIndex) {
+        const table = document.querySelector("table");
+        const rows = Array.from(table.querySelectorAll("tr:nth-child(n+2)"));
+        const isNumeric = colIndex === 1 || colIndex === 6 || colIndex === 7;
+
+        rows.sort((a, b) => {
+            const cellA = a.cells[colIndex].textContent.trim();
+            const cellB = b.cells[colIndex].textContent.trim();
+
+            if (isNumeric) {
+                return parseFloat(cellA) - parseFloat(cellB);
+            } else {
+                return cellA.localeCompare(cellB);
+            }
+        });
+
+        rows.forEach(row => table.appendChild(row));
+    }
+</script>
+
+</body>
+</html>

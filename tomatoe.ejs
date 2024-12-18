@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Rotten Tomatoes : Top Rating Movies</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1c1c1c;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            background: url('https://preview.redd.it/4sng0tl381q71.png?width=640&crop=smart&auto=webp&s=5e3ab32fa19b0b85adad58ace0bc6d0d178410ca');
+        }
+
+        header {
+            background-color: #111;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .navbar {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .navbar a {
+            color: #fcfaf9;
+            font-size: 1.2rem;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 15px;
+            border-radius: 5px;
+            background-color: #ea2d10;
+        }
+
+        .navbar a:hover {
+            background-color: #ff6d48;
+            color: #333;
+        }
+
+        table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #555;
+        }
+
+        th {
+            background-color: #ea2d10;
+            color: rgb(10, 1, 1);
+        }
+
+        tr:nth-child(even) {
+            background-color: #444;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #333;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            background-color: #ea2d10;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0 5px;
+            font-weight: bold;
+        }
+
+        .pagination a:hover {
+            background-color: #ea2d10;
+        }
+
+        .pagination a.active {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .pagination a.disabled {
+            background-color: #777;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .search-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .search-bar {
+            width: 50%;
+            padding: 10px;
+            font-size: 1.1rem;
+            border: 2px solid #555;
+            border-radius: 5px;
+            background-color: #222;
+            color: white;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #ea2d10;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    Rotten Tomatoes : Top Rating Movies
+</header>
+
+<div class="navbar">
+    
+    <a href="/" style="background-color: #550202(2, 50, 1); color: white;">IMBD : Top Rating</a>
+    <a href="/imbdtomatoes" style="background-color: #550202(2, 50, 1);color: #fff;">IMBD & Rotten Tomatoes</a>
+</div>
+
+<div class="search-container">
+    <input type="text" id="search-bar" class="search-bar" placeholder="Search by movie title..." onkeyup="searchMovies()">
+</div>
+
+<table id="movie-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Rating</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+
+        <% tomatoes.forEach(function(tomatoe) { %>
+            <tr>
+                <td><%= tomatoe.Title %></td>
+                <td><%= tomatoe.Rating %></td>
+                
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<div class="pagination" id="pagination"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<script>
+    const itemsPerPage = 5;
+    let currentPage = 1;
+    let movieData = [];
+    let filteredData = [];
+
+    function loadCSVData() {
+        Papa.parse('movies_combined.csv', {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            complete: function(results) {
+                movieData = results.data;
+                filteredData = movieData; // Initialize filteredData with all movies
+                renderPage(currentPage);
+                renderPagination();
+            }
+        });
+    }
+
+    function renderPage(page) {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = page * itemsPerPage;
+        const dataToDisplay = filteredData.slice(startIndex, endIndex);
+
+        const tableBody = document.getElementById("movie-table").getElementsByTagName("tbody")[0];
+        tableBody.innerHTML = '';
+
+        dataToDisplay.forEach(movie => {
+            const row = tableBody.insertRow();
+            ["Title", "Year", "Director", "Writers", "Actors", "Genre", "IMDb Rating", "Rotten Tomatoes"].forEach(key => {
+                const cell = row.insertCell();
+                cell.textContent = movie[key] || "N/A";
+            });
+        });
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        const paginationContainer = document.getElementById("pagination");
+        paginationContainer.innerHTML = '';
+
+        if (currentPage > 1) {
+            const prevLink = document.createElement("a");
+            prevLink.href = "#";
+            prevLink.textContent = "Previous";
+            prevLink.onclick = function() {
+                currentPage--;
+                renderPage(currentPage);
+                renderPagination();
+            };
+            paginationContainer.appendChild(prevLink);
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageLink = document.createElement("a");
+            pageLink.href = "#";
+            pageLink.textContent = i;
+            pageLink.onclick = function() {
+                currentPage = i;
+                renderPage(currentPage);
+                renderPagination();
+            };
+            if (i === currentPage) {
+                pageLink.classList.add("active");
+            }
+            paginationContainer.appendChild(pageLink);
+        }
+
+        if (currentPage < totalPages) {
+            const nextLink = document.createElement("a");
+            nextLink.href = "#";
+            nextLink.textContent = "Next";
+            nextLink.onclick = function() {
+                currentPage++;
+                renderPage(currentPage);
+                renderPagination();
+            };
+            paginationContainer.appendChild(nextLink);
+        }
+    }
+
+    function searchMovies() {
+        const searchTerm = document.getElementById("search-bar").value.toLowerCase();
+        filteredData = movieData.filter(movie => movie.Title.toLowerCase().includes(searchTerm));
+        currentPage = 1; // Reset to the first page when searching
+        renderPage(currentPage);
+        renderPagination();
+    }
+
+    window.onload = loadCSVData;
+</script>
+
+</body>
+</html>
